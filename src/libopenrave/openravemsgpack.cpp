@@ -72,6 +72,7 @@ struct convert< rapidjson::GenericDocument<Encoding, Allocator, StackAllocator> 
                 struct time_t lm_timet = std::chrono::system_clock::to_time_t(tp);
                 std::string lastModifiedStr(32, '\0');
                 lastModifiedStr.resize(std::strftime(&lastModifiedStr[0], lastModifiedStr.size(), "%FT%T%z", std::localtime(&lm_timet)));
+                RAVELOG_INFO("Last modified at %s\n", lastModifiedStr.c_str());
                 v.SetString(lastModifiedStr, v.GetAllocator())
                 break;
             }
