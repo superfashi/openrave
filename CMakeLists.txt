@@ -396,9 +396,10 @@ endif()
 
 set(OPENRAVE_MSGPACK 0)
 if( OPT_MSGPACK )
-pkg_check_modules(msgpack msgpack)
+  pkg_check_modules(msgpack msgpack)
 if( msgpack_FOUND )
   set(OPENRAVE_MSGPACK 1)
+  message(STATUS "msgpack ${msgpack_VERSION}")
 endif()
 endif()
 
