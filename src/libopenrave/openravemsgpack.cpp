@@ -66,6 +66,15 @@ struct convert< rapidjson::GenericDocument<Encoding, Allocator, StackAllocator> 
                 }
             }
                 break;
+            case msgpack::type::EXT: {
+                using time_point = std::chrono::system_clock::time_point;
+                const time_point tp = o.as<time_point>();
+                struct time_t lm_timet = std::chrono::system_clock::to_time_t(tp);
+                std::string lastModifiedStr(32, '\0');
+                lastModifiedStr.resize(std::strftime(&lastModifiedStr[0], lastModifiedStr.size(), "%FT%T%z", std::localtime(&lm_timet)));
+                v.SetString(lastModifiedStr, v.GetAllocator())
+                break;
+            }
             case msgpack::type::NIL:
             default:
                 v.SetNull(); break;
