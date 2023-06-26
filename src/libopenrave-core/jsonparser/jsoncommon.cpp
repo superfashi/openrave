@@ -24,10 +24,11 @@
 #include <gpgme++/context.h>
 #include <gpgme++/data.h>
 #include <gpgme++/decryptionresult.h>
+#include <gpgme++/encryptionresult.h>
+#include <gpgme++/engineinfo.h>
 #include <gpgme++/global.h>
 #include <gpgme++/keylistresult.h>
 #include <gpgme++/interfaces/dataprovider.h>
-#include <gpgme++/encryptionresult.h>
 #endif
 
 namespace OpenRAVE {
@@ -196,6 +197,9 @@ bool GpgEncrypt(std::istream& inputStream, std::string& outputBuffer, const std:
         RAVELOG_ERROR("Failed to initialize GPG context.");
         return false;
     }
+
+    GpgME::EngineInfo engineInfo = gpgCtx->engineInfo();
+    RAVELOG_INFO("Engine filename: %s\t homedir: %s\tversion: %s\n", engineInfo.fileName(), engineInfo.homeDirectory(), engineInfo.version());
 
     GpgME::Error err;
     GpgME::Key key;
