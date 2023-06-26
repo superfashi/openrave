@@ -99,6 +99,11 @@ void EnvironmentBase::EnvironmentBaseInfo::SerializeJSON(rapidjson::Value& rEnvI
         }
         rEnvInfo.AddMember("bodies", rBodiesValue, allocator);
     }
+
+    time_t lm_timet = std::chrono::system_clock::to_time_t(_lastModified);
+    std::string lastModifiedStr(32, '\0');
+    lastModifiedStr.resize(std::strftime(&lastModifiedStr[0], lastModifiedStr.size(), "%FT%T%z", std::localtime(&lm_timet)));
+    orjson::SetJsonValueByKey(rEnvInfo, "modifiedAt", lastModifiedStr, allocator);
 }
 
 void EnvironmentBase::EnvironmentBaseInfo::DeserializeJSON(const rapidjson::Value& rEnvInfo, dReal fUnitScale, int options)
@@ -115,6 +120,14 @@ void EnvironmentBase::EnvironmentBaseInfo::DeserializeJSONWithMapping(const rapi
 
     // for DeserializeJSON, there are two possibilities: 1. full json passed in 2. diff json passed in
     // for example, do not clear _vBodyInfos.clear(), since we could be dealing with partial json
+
+    if (rEnvInfo.HasMember("modifiedAt")) {
+        std::string lastModifiedStr;
+        orjson::LoadJsonValueByKey(rEnvInfo, "modifiedAt", lastModifiedStr);
+        struct tm ctm;
+        ::strptime(&lastModifiedStr[0], "%FT%T%z", &ctm);
+        _lastModified = std::chrono::system_clock::from_time_t(std::mktime(&ctm));
+    }
 
     if (rEnvInfo.HasMember("revision")) {
         orjson::LoadJsonValueByKey(rEnvInfo, "revision", _revision);
@@ -282,4 +295,9 @@ void EnvironmentBase::EnvironmentBaseInfo::DeserializeJSONWithMapping(const rapi
             }
         }
     }
+}
+
+void EnvironmentBase::EnvironmentBaseInfo::SetLastModifiedNow()
+{
+    _lastModified = std::chrono::system_clock::now();
 }
